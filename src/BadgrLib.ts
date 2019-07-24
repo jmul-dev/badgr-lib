@@ -17,7 +17,7 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  async getAccessTokens(username: string, password: string): Promise<BadgrTokensResponse> {
+  getAccessTokens(username: string, password: string): Promise<BadgrTokensResponse> {
     return new Promise((resolve, reject) => {
       this._axios.post(`/o/token`, qs.stringify({
           username,
@@ -49,7 +49,7 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  async refreshAccessTokens(refreshToken: string): Promise<any> {
+  refreshAccessTokens(refreshToken: string): Promise<any> {
     return new Promise((resolve, reject) => {
       this._axios.post(`/o/token`, qs.stringify({
           grant_type: 'refresh_token',
