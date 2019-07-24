@@ -49,7 +49,7 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  refreshAccessTokens(refreshToken: string): Promise<any> {
+  refreshAccessTokens(refreshToken: string): Promise<BadgrTokensResponse> {
     return new Promise((resolve, reject) => {
       this._axios.post(`/o/token`, qs.stringify({
           grant_type: 'refresh_token',
@@ -79,4 +79,35 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
+  getIssuers(accessToken: string, entityId?: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this._axios.get(`/v2/issuers${entityId ? '/' + entityId : ''}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        .then((resp) => {
+          resolve(entityId ? resp.data.result[0] : resp.data.result);
+        })
+        .catch((err) => {
+          reject({error: true, errorMessage: err.response.statusText || err.message});
+        });
+    });
+  }
+
+  getBadgeClasses(accessToken: string, entityId?: string): Promise<any> {
+    return new Promise((resolve, reject) => {
+      this._axios.get(`/v2/badgeclasses${entityId ? '/' + entityId : ''}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        .then((resp) => {
+          resolve(entityId ? resp.data.result[0] : resp.data.result);
+        })
+        .catch((err) => {
+          reject({error: true, errorMessage: err.response.statusText || err.message});
+        });
+    });
+  }
 }
