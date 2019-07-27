@@ -1,4 +1,4 @@
-import BadgrLibInterface, { BadgrTokensResponse } from "./BadgrLibInterface";
+import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse } from "./BadgrLibInterface";
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import qs from 'qs';
@@ -26,12 +26,14 @@ export default class BadgrLib implements BadgrLibInterface {
         .then((resp) => {
           const { data } = resp;
           const _badgrTokensResponse: BadgrTokensResponse = {
-            accessToken: data.access_token,
-            tokenType: data.token_type,
-            expiresIn: data.expires_in,
-            refreshToken: data.refresh_token,
-            scope: data.scope,
-            error: false
+            error: false,
+            badgrTokens: {
+              accessToken: data.access_token,
+              tokenType: data.token_type,
+              expiresIn: data.expires_in,
+              refreshToken: data.refresh_token,
+              scope: data.scope
+            }
           };
           resolve(_badgrTokensResponse);
         })
@@ -58,12 +60,14 @@ export default class BadgrLib implements BadgrLibInterface {
         .then((resp) => {
           const { data } = resp;
           const _badgrTokensResponse: BadgrTokensResponse = {
-            accessToken: data.access_token,
-            tokenType: data.token_type,
-            expiresIn: data.expires_in,
-            refreshToken: data.refresh_token,
-            scope: data.scope,
-            error: false
+            error: false,
+            badgrTokens: {
+              accessToken: data.access_token,
+              tokenType: data.token_type,
+              expiresIn: data.expires_in,
+              refreshToken: data.refresh_token,
+              scope: data.scope
+            }
           };
           resolve(_badgrTokensResponse);
         })
@@ -79,7 +83,7 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  getIssuers(accessToken: string, entityId?: string): Promise<any> {
+  getIssuers(accessToken: string, entityId?: string): Promise<IssuersResponse> {
     return new Promise((resolve, reject) => {
       this._axios.get(`/v2/issuers${entityId ? '/' + entityId : ''}`, {
           headers: {
@@ -87,15 +91,23 @@ export default class BadgrLib implements BadgrLibInterface {
           }
         })
         .then((resp) => {
-          resolve(entityId ? resp.data.result[0] : resp.data.result);
+          const _issuersResponse: IssuersResponse = {
+            error: false,
+            issuers: resp.data.result
+          };
+          resolve(_issuersResponse);
         })
         .catch((err) => {
-          reject({error: true, errorMessage: err.response.statusText || err.message});
+          const _issuersResponse: IssuersResponse = {
+            error: true,
+            errorMessage: err.response.statusText || err.message
+          };
+          reject(_issuersResponse);
         });
     });
   }
 
-  getBadgeClasses(accessToken: string, entityId?: string): Promise<any> {
+  getBadgeClasses(accessToken: string, entityId?: string): Promise<BadgeClassesResponse> {
     return new Promise((resolve, reject) => {
       this._axios.get(`/v2/badgeclasses${entityId ? '/' + entityId : ''}`, {
           headers: {
@@ -103,10 +115,18 @@ export default class BadgrLib implements BadgrLibInterface {
           }
         })
         .then((resp) => {
-          resolve(entityId ? resp.data.result[0] : resp.data.result);
+          const _badgeClassesResponse: BadgeClassesResponse = {
+            error: false,
+            badgeClasses: resp.data.result
+          };
+          resolve(_badgeClassesResponse);
         })
         .catch((err) => {
-          reject({error: true, errorMessage: err.response.statusText || err.message});
+          const _badgeClassesResponse: BadgeClassesResponse = {
+            error: true,
+            errorMessage: err.response.statusText || err.message
+          };
+          reject(_badgeClassesResponse);
         });
     });
   }
