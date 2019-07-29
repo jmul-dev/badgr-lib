@@ -159,6 +159,11 @@ export type CreateBadgeClassResponse = {
   badgeClass?: BadgeClass;
 };
 
+export type DeleteBadgeClassResponse = {
+  error: boolean;
+  errorMessage?: string;
+};
+
 export default interface BadgrLibInterface {
   /**
    * Connect to badgr API and generate access tokens
@@ -218,4 +223,12 @@ export default interface BadgrLibInterface {
    * @param expiresDuration "days", "weeks", "months", "years"
    */
   createBadgeClass(accessToken: string, issuerEntityId: string, name: string, description: string, image: string, criteriaUrl: string, criteriaNarrative: string, tags?: string[], expiresAmount?: string, expiresDuration?: string): Promise<CreateBadgeClassResponse>;
+
+  /**
+   * Delete a BadgeClass
+   *
+   * @param accessToken
+   * @param badgeClassEntityId
+   */
+  deleteBadgeClass(accessToken: string, badgeClassEntityId: string): Promise<DeleteBadgeClassResponse>;
 }

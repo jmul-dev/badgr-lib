@@ -1,4 +1,4 @@
-import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse, CreateBadgeClassData, CreateBadgeClassResponse } from "./BadgrLibInterface";
+import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse, CreateBadgeClassData, CreateBadgeClassResponse, DeleteBadgeClassResponse} from "./BadgrLibInterface";
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import qs from 'qs';
@@ -225,5 +225,29 @@ export default class BadgrLib implements BadgrLibInterface {
           reject(_createBadgeClassResponse);
         });
     });
+  }
+
+  deleteBadgeClass(accessToken: string, badgeClassEntityId: string): Promise<DeleteBadgeClassResponse> {
+    return new Promise((resolve, reject) => {
+      this._axios.delete(`/v2/badgeclasses/${badgeClassEntityId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        .then((resp) => {
+          const _deleteBadgeClassResponse: DeleteBadgeClassResponse = {
+            error: false
+          };
+          resolve(_deleteBadgeClassResponse);
+        })
+        .catch((err) => {
+          const _deleteBadgeClassResponse: DeleteBadgeClassResponse = {
+            error: true,
+            errorMessage: err.response.statusText || err.message
+          };
+          reject(_deleteBadgeClassResponse);
+        });
+    });
+
   }
 }
