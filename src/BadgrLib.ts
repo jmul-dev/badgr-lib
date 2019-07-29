@@ -1,4 +1,4 @@
-import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse } from "./BadgrLibInterface";
+import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse } from "./BadgrLibInterface";
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import qs from 'qs';
@@ -127,6 +127,45 @@ export default class BadgrLib implements BadgrLibInterface {
             errorMessage: err.response.statusText || err.message
           };
           reject(_badgeClassesResponse);
+        });
+    });
+  }
+
+  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceURL?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse> {
+    return new Promise((resolve, reject) => {
+      const _data: AwardBadgeClassData = {
+        recipient: {
+          identity: recipientEmail,
+          type: RecipientType.email,
+          hashed: true
+        }
+      };
+      if (evidenceURL && evidenceNarrative) {
+        _data.evidence = [{url: evidenceURL, narrative: evidenceNarrative}];
+      }
+      if (expires) _data.expires = expires;
+      this._axios.post(`/v2/badgeclasses/${badgeClassEntityId}/assertions`, _data, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        .then((resp) => {
+          const _awardBadgeClassResponse = {
+            error: false,
+            badgeClassAssertion: resp.data.result[0]
+          };
+          resolve(_awardBadgeClassResponse);
+        })
+        .catch((err) => {
+          const _awardBadgeClassResponse: AwardBadgeClassResponse = {
+            error: true
+          };
+          if (err.response) {
+            _awardBadgeClassResponse.errorMessage = err.response.data.status.description;
+          } else {
+            _awardBadgeClassResponse.errorMessage = err.message;
+          }
+          reject(_awardBadgeClassResponse);
         });
     });
   }

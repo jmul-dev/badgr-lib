@@ -13,9 +13,9 @@ export type BadgrTokensResponse = {
 };
 
 enum IssuerStaffRole {
-  staff,
-  editor,
-  owner
+  staff="staff",
+  editor="editor",
+  owner="owner"
 }
 
 interface IssuerStaff {
@@ -86,6 +86,59 @@ export type BadgeClassesResponse = {
   badgeClasses?: BadgeClass[];
 };
 
+interface Evidence {
+  url: string;
+  narrative: string;
+};
+
+export enum RecipientType {
+  email="email",
+  telephone="telephone",
+  url="url"
+}
+
+interface Recipient {
+  identity: string;
+  type: RecipientType;
+  hashed: boolean;
+  plaintextIdentity?: string;
+  salt?: string;
+}
+
+export type AwardBadgeClassData = {
+  recipient: Recipient;
+  expires?: string;
+  evidence?: Evidence[];
+};
+
+interface BadgeClassAssertion {
+  entityType: string;
+  entityId: string;
+  openBadgeId: string;
+  createdAt: string;
+  createdBy: string;
+  badgeclass: string;
+  badgeclassOpenBadgeId: string;
+  issuer: string;
+  issuerOpenBadgeId: string;
+  image: string;
+  recipient: Recipient;
+  issuedOn: string;
+  narrative: string;
+  evidence: Evidence[];
+  revoked: boolean;
+  revocationReason: string;
+  expires: string;
+  extensions: string;
+  badgeclassName: string;
+}
+
+export type AwardBadgeClassResponse = {
+  error: boolean;
+  errorMessage?: string;
+  badgeClassAssertion?: BadgeClassAssertion;
+};
+
 export default interface BadgrLibInterface {
   /**
    * Connect to badgr API and generate access tokens
@@ -117,4 +170,16 @@ export default interface BadgrLibInterface {
    * @param entityId?
    */
   getBadgeClasses(accessToken: string, entityId?: string): Promise<BadgeClassesResponse>;
+
+  /**
+   * Award a badge to a recipient
+   *
+   * @param accessToken
+   * @param badgeClassEntityId The entityId of the BadgeClass
+   * @param recipientEmail
+   * @param evidenceURL The URL to the evidence for earning this BadgeClass
+   * @param evidenceNarrative The narrative for earning this BadgeClass
+   * @param expires Expiration date for the assertion. ISO8601 formatted datetime stamp, e.g. 2018-11-26T13:45:00Z
+   */
+  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceURL?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse>;
 }
