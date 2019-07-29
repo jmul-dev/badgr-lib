@@ -1,4 +1,4 @@
-import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse, CreateBadgeClassData, CreateBadgeClassResponse, DeleteBadgeClassResponse} from "./BadgrLibInterface";
+import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse, CreateBadgeClassData, CreateBadgeClassResponse, Response} from "./BadgrLibInterface";
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import qs from 'qs';
@@ -227,7 +227,7 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  deleteBadgeClass(accessToken: string, badgeClassEntityId: string): Promise<DeleteBadgeClassResponse> {
+  deleteBadgeClass(accessToken: string, badgeClassEntityId: string): Promise<Response> {
     return new Promise((resolve, reject) => {
       this._axios.delete(`/v2/badgeclasses/${badgeClassEntityId}`, {
           headers: {
@@ -235,19 +235,44 @@ export default class BadgrLib implements BadgrLibInterface {
           }
         })
         .then((resp) => {
-          const _deleteBadgeClassResponse: DeleteBadgeClassResponse = {
+          const _deleteBadgeClassResponse: Response = {
             error: false
           };
           resolve(_deleteBadgeClassResponse);
         })
         .catch((err) => {
-          const _deleteBadgeClassResponse: DeleteBadgeClassResponse = {
+          const _deleteBadgeClassResponse: Response = {
             error: true,
             errorMessage: err.response.statusText || err.message
           };
           reject(_deleteBadgeClassResponse);
         });
     });
+  }
 
+  revokeAssertion(accessToken: string, assertionEntityId: string, revocationReason: string): Promise<Response> {
+    return new Promise((resolve, reject) => {
+      this._axios.delete(`/v2/assertions/${assertionEntityId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          },
+          data: {
+            revocation_reason: revocationReason
+          }
+        })
+        .then((resp) => {
+          const _revokeAssertionResponse: Response = {
+            error: false
+          };
+          resolve(_revokeAssertionResponse);
+        })
+        .catch((err) => {
+          const _revokeAssertionResponse: Response = {
+            error: true,
+            errorMessage: err.response.statusText || err.message
+          };
+          reject(_revokeAssertionResponse);
+        });
+    });
   }
 }

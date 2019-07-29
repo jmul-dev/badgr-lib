@@ -159,7 +159,7 @@ export type CreateBadgeClassResponse = {
   badgeClass?: BadgeClass;
 };
 
-export type DeleteBadgeClassResponse = {
+export type Response = {
   error: boolean;
   errorMessage?: string;
 };
@@ -230,5 +230,14 @@ export default interface BadgrLibInterface {
    * @param accessToken
    * @param badgeClassEntityId
    */
-  deleteBadgeClass(accessToken: string, badgeClassEntityId: string): Promise<DeleteBadgeClassResponse>;
+  deleteBadgeClass(accessToken: string, badgeClassEntityId: string): Promise<Response>;
+
+  /**
+   * Revoke an Assertion
+   *
+   * @param accessToken
+   * @param assertionEntityId
+   * @param revocationReason
+   */
+  revokeAssertion(accessToken: string, assertionEntityId: string, revocationReason: string): Promise<Response>;
 }
