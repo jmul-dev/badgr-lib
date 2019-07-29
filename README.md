@@ -34,7 +34,7 @@ import BadgrLib from './';
 Authenticate user to get the access token.
 
 Sample response:
-```json
+```
 {
   error: false,
   badgrTokens: {
@@ -52,7 +52,7 @@ Sample response:
 Access tokens will expire (will only valid for 24hrs). The refresh token can be used to automatically renew an access token without requiring the password again.
 
 Sample response:
-```json
+```
 {
   error: false,
   badgrTokens: {
@@ -71,7 +71,7 @@ Get a list of Issuers for authenticated user.
 `entityId` is an optional param. If passed, then will get Issuer info for that specific Issuer's `entityId`.
 
 Sample response:
-```json
+```
 {
   error: false,
   issuers:  [
@@ -118,7 +118,7 @@ Sample response:
 Get a list of BadgeClasses for authenticated user. `entityId` is an optional param. If passed, then will get BadgeClass info for that specific BadgeClass's `entityId`.
 
 Sample response:
-```json
+```
 {
   error: false,
   badgeClasses: [
@@ -155,7 +155,7 @@ Award a BadgeClass to a recipient.
 `expires` is the expiration date of this BadgeClass. ISO8601 formatted datetime stamp, e.g. `2018-11-26T13:45:00Z`
 
 Sample response:
-```json
+```
 {
   error: false,
   badgeClassAssertion: {
@@ -203,7 +203,7 @@ Create a new BadgeClass.
 `expiresDuration` e.g `days, weeks, months, years`.
 
 Sample response:
-```json
+```
 {
   error: false,
   badgeClass: {
@@ -232,7 +232,7 @@ Sample response:
 Delete a BadgeClass.
 
 Sample response:
-```json
+```
 { error: false }
 ```
 
@@ -241,6 +241,6 @@ Sample response:
 Revoke a recipient's awarded BadgeClass (Assertion).
 
 Sample response:
-```json
+```
 { error: false }
 ```
