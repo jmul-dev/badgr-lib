@@ -136,7 +136,27 @@ interface BadgeClassAssertion {
 export type AwardBadgeClassResponse = {
   error: boolean;
   errorMessage?: string;
+  validationErrors?: any;
+  fieldErrors?: any;
   badgeClassAssertion?: BadgeClassAssertion;
+};
+
+export type CreateBadgeClassData = {
+  name: string;
+  description: string;
+  image: string;
+  criteriaUrl: string;
+  criteriaNarrative: string;
+  tags?: string[];
+  expires?: BadgeClassExpiration;
+};
+
+export type CreateBadgeClassResponse = {
+  error: boolean;
+  errorMessage?: string;
+  validationErrors?: any;
+  fieldErrors?: any;
+  badgeClass?: BadgeClass;
 };
 
 export default interface BadgrLibInterface {
@@ -172,14 +192,30 @@ export default interface BadgrLibInterface {
   getBadgeClasses(accessToken: string, entityId?: string): Promise<BadgeClassesResponse>;
 
   /**
-   * Award a badge to a recipient
+   * Award a BadgeClass to a recipient
    *
    * @param accessToken
    * @param badgeClassEntityId The entityId of the BadgeClass
    * @param recipientEmail
-   * @param evidenceURL The URL to the evidence for earning this BadgeClass
+   * @param evidenceUrl The URL to the evidence for earning this BadgeClass
    * @param evidenceNarrative The narrative for earning this BadgeClass
    * @param expires Expiration date for the assertion. ISO8601 formatted datetime stamp, e.g. 2018-11-26T13:45:00Z
    */
-  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceURL?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse>;
+  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceUrl?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse>;
+
+  /**
+   * Create a BadgeClass for an Issuer
+   *
+   * @param accessToken
+   * @param issuerEntityId The entityId of the Issuer
+   * @param name
+   * @param description
+   * @param image
+   * @param criteriaUrl
+   * @param criteriaNarrative
+   * @param tags
+   * @param expiresAmount
+   * @param expiresDuration "days", "weeks", "months", "years"
+   */
+  createBadgeClass(accessToken: string, issuerEntityId: string, name: string, description: string, image: string, criteriaUrl: string, criteriaNarrative: string, tags?: string[], expiresAmount?: string, expiresDuration?: string): Promise<CreateBadgeClassResponse>;
 }

@@ -1,4 +1,4 @@
-import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse } from "./BadgrLibInterface";
+import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse, CreateBadgeClassData, CreateBadgeClassResponse } from "./BadgrLibInterface";
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import qs from 'qs';
@@ -131,7 +131,7 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceURL?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse> {
+  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceUrl?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse> {
     return new Promise((resolve, reject) => {
       const _data: AwardBadgeClassData = {
         recipient: {
@@ -140,8 +140,8 @@ export default class BadgrLib implements BadgrLibInterface {
           hashed: true
         }
       };
-      if (evidenceURL && evidenceNarrative) {
-        _data.evidence = [{url: evidenceURL, narrative: evidenceNarrative}];
+      if (evidenceUrl && evidenceNarrative) {
+        _data.evidence = [{url: evidenceUrl, narrative: evidenceNarrative}];
       }
       if (expires) _data.expires = expires;
       this._axios.post(`/v2/badgeclasses/${badgeClassEntityId}/assertions`, _data, {
@@ -150,7 +150,7 @@ export default class BadgrLib implements BadgrLibInterface {
           }
         })
         .then((resp) => {
-          const _awardBadgeClassResponse = {
+          const _awardBadgeClassResponse: AwardBadgeClassResponse = {
             error: false,
             badgeClassAssertion: resp.data.result[0]
           };
@@ -162,10 +162,67 @@ export default class BadgrLib implements BadgrLibInterface {
           };
           if (err.response) {
             _awardBadgeClassResponse.errorMessage = err.response.data.status.description;
+            if (err.response.data.validationErrors.length) {
+              _awardBadgeClassResponse.validationErrors = err.response.data.validationErrors;
+            }
+            if (err.response.data.fieldErrors) {
+              _awardBadgeClassResponse.fieldErrors = err.response.data.fieldErrors;
+            }
           } else {
             _awardBadgeClassResponse.errorMessage = err.message;
           }
           reject(_awardBadgeClassResponse);
+        });
+    });
+  }
+
+  createBadgeClass(accessToken: string, issuerEntityId: string, name: string, description: string, image: string, criteriaUrl: string, criteriaNarrative: string, tags?: string[], expiresAmount?: string, expiresDuration?: string): Promise<CreateBadgeClassResponse> {
+    return new Promise((resolve, reject) => {
+      const _data: CreateBadgeClassData = {
+        name,
+        description,
+        image,
+        criteriaUrl,
+        criteriaNarrative
+      };
+      if (tags.length) {
+        _data.tags = tags;
+      }
+      if (expiresAmount && expiresDuration) {
+        _data.expires = {
+          amount: expiresAmount,
+          duration: expiresDuration
+        };
+      }
+      this._axios.post(`/v2/issuers/${issuerEntityId}/badgeclasses`, _data, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`
+          }
+        })
+        .then((resp) => {
+          const _createBadgeClassResponse: CreateBadgeClassResponse = {
+            error: false,
+            badgeClass: resp.data.result[0]
+          };
+          resolve(_createBadgeClassResponse);
+        })
+        .catch((err) => {
+          const _createBadgeClassResponse: CreateBadgeClassResponse = {
+            error: true
+          };
+
+          if (err.response) {
+            _createBadgeClassResponse.errorMessage = err.response.data.status.description;
+            if (err.response.data.validationErrors.length) {
+              _createBadgeClassResponse.validationErrors = err.response.data.validationErrors;
+            }
+            if (err.response.data.fieldErrors) {
+              _createBadgeClassResponse.fieldErrors = err.response.data.fieldErrors;
+            }
+          } else {
+            _createBadgeClassResponse.errorMessage = err.message;
+          }
+          reject(_createBadgeClassResponse);
         });
     });
   }
