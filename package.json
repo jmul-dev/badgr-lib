@@ -21,6 +21,7 @@
     "qs": "^6.7.0"
   },
   "scripts": {
-    "build": "tsc"
+    "build": "tsc",
+    "postinstall": "tsc"
   }
 }
