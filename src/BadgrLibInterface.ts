@@ -13,9 +13,9 @@ export type BadgrTokensResponse = {
 };
 
 enum IssuerStaffRole {
-  staff="staff",
-  editor="editor",
-  owner="owner"
+  staff = 'staff',
+  editor = 'editor',
+  owner = 'owner'
 }
 
 interface IssuerStaff {
@@ -89,12 +89,12 @@ export type BadgeClassesResponse = {
 interface Evidence {
   url: string;
   narrative: string;
-};
+}
 
 export enum RecipientType {
-  email="email",
-  telephone="telephone",
-  url="url"
+  email = 'email',
+  telephone = 'telephone',
+  url = 'url'
 }
 
 interface Recipient {
@@ -206,7 +206,14 @@ export default interface BadgrLibInterface {
    * @param evidenceNarrative The narrative for earning this BadgeClass
    * @param expires Expiration date for the assertion. ISO8601 formatted datetime stamp, e.g. 2018-11-26T13:45:00Z
    */
-  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceUrl?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse>;
+  awardBadgeClass(
+    accessToken: string,
+    badgeClassEntityId: string,
+    recipientEmail: string,
+    evidenceUrl?: string,
+    evidenceNarrative?: string,
+    expires?: string
+  ): Promise<AwardBadgeClassResponse>;
 
   /**
    * Create a BadgeClass for an Issuer
@@ -222,7 +229,18 @@ export default interface BadgrLibInterface {
    * @param expiresAmount
    * @param expiresDuration "days", "weeks", "months", "years"
    */
-  createBadgeClass(accessToken: string, issuerEntityId: string, name: string, description: string, image: string, criteriaUrl: string, criteriaNarrative: string, tags?: string[], expiresAmount?: string, expiresDuration?: string): Promise<CreateBadgeClassResponse>;
+  createBadgeClass(
+    accessToken: string,
+    issuerEntityId: string,
+    name: string,
+    description: string,
+    image: string,
+    criteriaUrl: string,
+    criteriaNarrative: string,
+    tags?: string[],
+    expiresAmount?: string,
+    expiresDuration?: string
+  ): Promise<CreateBadgeClassResponse>;
 
   /**
    * Delete a BadgeClass

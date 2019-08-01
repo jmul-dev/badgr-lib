@@ -1,29 +1,38 @@
-import BadgrLibInterface, { BadgrTokensResponse, IssuersResponse, BadgeClassesResponse, AwardBadgeClassData, RecipientType, AwardBadgeClassResponse, CreateBadgeClassData, CreateBadgeClassResponse, Response} from "./BadgrLibInterface";
+import BadgrLibInterface, {
+  BadgrTokensResponse,
+  IssuersResponse,
+  BadgeClassesResponse,
+  AwardBadgeClassData,
+  RecipientType,
+  AwardBadgeClassResponse,
+  CreateBadgeClassData,
+  CreateBadgeClassResponse,
+  Response
+} from './BadgrLibInterface';
 import * as dotenv from 'dotenv';
 import axios from 'axios';
 import qs from 'qs';
-
-dotenv.config();
 
 export default class BadgrLib implements BadgrLibInterface {
   private _axios;
 
   constructor() {
-    if (!process.env.BADGR_API_ENDPOINT) {
-      throw new Error('Missing Badgr API endpoint');
-    }
     this._axios = axios.create({
-      baseURL: process.env.BADGR_API_ENDPOINT
+      baseURL: `https://api.badgr.io`
     });
   }
 
   getAccessTokens(username: string, password: string): Promise<BadgrTokensResponse> {
     return new Promise((resolve, reject) => {
-      this._axios.post(`/o/token`, qs.stringify({
-          username,
-          password
-        }))
-        .then((resp) => {
+      this._axios
+        .post(
+          `/o/token`,
+          qs.stringify({
+            username,
+            password
+          })
+        )
+        .then(resp => {
           const { data } = resp;
           const _badgrTokensResponse: BadgrTokensResponse = {
             error: false,
@@ -37,7 +46,7 @@ export default class BadgrLib implements BadgrLibInterface {
           };
           resolve(_badgrTokensResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _badgrTokensResponse: BadgrTokensResponse = {
             error: true
           };
@@ -53,11 +62,15 @@ export default class BadgrLib implements BadgrLibInterface {
 
   refreshAccessTokens(refreshToken: string): Promise<BadgrTokensResponse> {
     return new Promise((resolve, reject) => {
-      this._axios.post(`/o/token`, qs.stringify({
-          grant_type: 'refresh_token',
-          refresh_token: refreshToken
-        }))
-        .then((resp) => {
+      this._axios
+        .post(
+          `/o/token`,
+          qs.stringify({
+            grant_type: 'refresh_token',
+            refresh_token: refreshToken
+          })
+        )
+        .then(resp => {
           const { data } = resp;
           const _badgrTokensResponse: BadgrTokensResponse = {
             error: false,
@@ -71,7 +84,7 @@ export default class BadgrLib implements BadgrLibInterface {
           };
           resolve(_badgrTokensResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _badgrTokensResponse: BadgrTokensResponse = {
             error: true
           };
@@ -85,19 +98,20 @@ export default class BadgrLib implements BadgrLibInterface {
 
   getIssuers(accessToken: string, entityId?: string): Promise<IssuersResponse> {
     return new Promise((resolve, reject) => {
-      this._axios.get(`/v2/issuers${entityId ? '/' + entityId : ''}`, {
+      this._axios
+        .get(`/v2/issuers${entityId ? '/' + entityId : ''}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
         })
-        .then((resp) => {
+        .then(resp => {
           const _issuersResponse: IssuersResponse = {
             error: false,
             issuers: resp.data.result
           };
           resolve(_issuersResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _issuersResponse: IssuersResponse = {
             error: true,
             errorMessage: err.response.statusText || err.message
@@ -109,19 +123,20 @@ export default class BadgrLib implements BadgrLibInterface {
 
   getBadgeClasses(accessToken: string, entityId?: string): Promise<BadgeClassesResponse> {
     return new Promise((resolve, reject) => {
-      this._axios.get(`/v2/badgeclasses${entityId ? '/' + entityId : ''}`, {
+      this._axios
+        .get(`/v2/badgeclasses${entityId ? '/' + entityId : ''}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
         })
-        .then((resp) => {
+        .then(resp => {
           const _badgeClassesResponse: BadgeClassesResponse = {
             error: false,
             badgeClasses: resp.data.result
           };
           resolve(_badgeClassesResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _badgeClassesResponse: BadgeClassesResponse = {
             error: true,
             errorMessage: err.response.statusText || err.message
@@ -131,7 +146,14 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  awardBadgeClass(accessToken: string, badgeClassEntityId: string, recipientEmail: string, evidenceUrl?: string, evidenceNarrative?: string, expires?: string): Promise<AwardBadgeClassResponse> {
+  awardBadgeClass(
+    accessToken: string,
+    badgeClassEntityId: string,
+    recipientEmail: string,
+    evidenceUrl?: string,
+    evidenceNarrative?: string,
+    expires?: string
+  ): Promise<AwardBadgeClassResponse> {
     return new Promise((resolve, reject) => {
       const _data: AwardBadgeClassData = {
         recipient: {
@@ -141,22 +163,23 @@ export default class BadgrLib implements BadgrLibInterface {
         }
       };
       if (evidenceUrl && evidenceNarrative) {
-        _data.evidence = [{url: evidenceUrl, narrative: evidenceNarrative}];
+        _data.evidence = [{ url: evidenceUrl, narrative: evidenceNarrative }];
       }
       if (expires) _data.expires = expires;
-      this._axios.post(`/v2/badgeclasses/${badgeClassEntityId}/assertions`, _data, {
+      this._axios
+        .post(`/v2/badgeclasses/${badgeClassEntityId}/assertions`, _data, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
         })
-        .then((resp) => {
+        .then(resp => {
           const _awardBadgeClassResponse: AwardBadgeClassResponse = {
             error: false,
             badgeClassAssertion: resp.data.result[0]
           };
           resolve(_awardBadgeClassResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _awardBadgeClassResponse: AwardBadgeClassResponse = {
             error: true
           };
@@ -176,7 +199,18 @@ export default class BadgrLib implements BadgrLibInterface {
     });
   }
 
-  createBadgeClass(accessToken: string, issuerEntityId: string, name: string, description: string, image: string, criteriaUrl: string, criteriaNarrative: string, tags?: string[], expiresAmount?: string, expiresDuration?: string): Promise<CreateBadgeClassResponse> {
+  createBadgeClass(
+    accessToken: string,
+    issuerEntityId: string,
+    name: string,
+    description: string,
+    image: string,
+    criteriaUrl: string,
+    criteriaNarrative: string,
+    tags?: string[],
+    expiresAmount?: string,
+    expiresDuration?: string
+  ): Promise<CreateBadgeClassResponse> {
     return new Promise((resolve, reject) => {
       const _data: CreateBadgeClassData = {
         name,
@@ -194,19 +228,20 @@ export default class BadgrLib implements BadgrLibInterface {
           duration: expiresDuration
         };
       }
-      this._axios.post(`/v2/issuers/${issuerEntityId}/badgeclasses`, _data, {
+      this._axios
+        .post(`/v2/issuers/${issuerEntityId}/badgeclasses`, _data, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
         })
-        .then((resp) => {
+        .then(resp => {
           const _createBadgeClassResponse: CreateBadgeClassResponse = {
             error: false,
             badgeClass: resp.data.result[0]
           };
           resolve(_createBadgeClassResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _createBadgeClassResponse: CreateBadgeClassResponse = {
             error: true
           };
@@ -229,18 +264,19 @@ export default class BadgrLib implements BadgrLibInterface {
 
   deleteBadgeClass(accessToken: string, badgeClassEntityId: string): Promise<Response> {
     return new Promise((resolve, reject) => {
-      this._axios.delete(`/v2/badgeclasses/${badgeClassEntityId}`, {
+      this._axios
+        .delete(`/v2/badgeclasses/${badgeClassEntityId}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           }
         })
-        .then((resp) => {
+        .then(resp => {
           const _deleteBadgeClassResponse: Response = {
             error: false
           };
           resolve(_deleteBadgeClassResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _deleteBadgeClassResponse: Response = {
             error: true,
             errorMessage: err.response.statusText || err.message
@@ -252,7 +288,8 @@ export default class BadgrLib implements BadgrLibInterface {
 
   revokeAssertion(accessToken: string, assertionEntityId: string, revocationReason: string): Promise<Response> {
     return new Promise((resolve, reject) => {
-      this._axios.delete(`/v2/assertions/${assertionEntityId}`, {
+      this._axios
+        .delete(`/v2/assertions/${assertionEntityId}`, {
           headers: {
             Authorization: `Bearer ${accessToken}`
           },
@@ -260,13 +297,13 @@ export default class BadgrLib implements BadgrLibInterface {
             revocation_reason: revocationReason
           }
         })
-        .then((resp) => {
+        .then(resp => {
           const _revokeAssertionResponse: Response = {
             error: false
           };
           resolve(_revokeAssertionResponse);
         })
-        .catch((err) => {
+        .catch(err => {
           const _revokeAssertionResponse: Response = {
             error: true,
             errorMessage: err.response.statusText || err.message

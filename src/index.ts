@@ -1,4 +1,3 @@
-import BadgrLib from "./BadgrLib";
-export default BadgrLib;
+import BadgrLib from './BadgrLib';
 
-export * from "./BadgrLibInterface";
+module.exports = BadgrLib;

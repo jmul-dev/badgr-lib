@@ -3,7 +3,7 @@
 badgr-lib is a nodejs module for [badgr API](https://api.badgr.io/docs/v2)
 ## Usage
 ``` js
-import BadgrLib from "badgr-lib";
+const BadgrLib = require("badgr-lib");
 const badgr = new BadgrLib();
 badgr.getAccessTokens(USERNAME, PASSWORD)
   .then((accessToken) => {
@@ -15,7 +15,7 @@ badgr.getAccessTokens(USERNAME, PASSWORD)
 ```
 or using `async/await`
 ```js
-import BadgrLib from 'badgr-lib';
+const BadgrLib = require("badgr-lib");
 (async () => {
   const badgr = new BadgrLib();
   try {
