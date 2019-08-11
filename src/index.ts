@@ -18,4 +18,4 @@ export default {
   deleteBadgeClass,
   revokeAssertion
 };
-export * from "./BadgrLibInterface";
+export * from "./BadgrLibTypes";

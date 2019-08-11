@@ -8,7 +8,7 @@ import {
   CreateBadgeClassData,
   CreateBadgeClassResponse,
   Response
-} from './BadgrLibInterface';
+} from './BadgrLibTypes';
 import axios from 'axios';
 import qs from 'qs';
 
@@ -16,6 +16,11 @@ const _axios = axios.create({
   baseURL: `https://api.badgr.io`
 });
 
+/**
+ * Connect to badgr API and generate access tokens
+ * @param username
+ * @param password
+ */
 export const getAccessTokens = (username: string, password: string): Promise<BadgrTokensResponse> => {
   return new Promise((resolve, reject) => {
     _axios
@@ -30,6 +35,7 @@ export const getAccessTokens = (username: string, password: string): Promise<Bad
         const { data } = resp;
         const _badgrTokensResponse: BadgrTokensResponse = {
           error: false,
+          errorMessage: '',
           badgrTokens: {
             accessToken: data.access_token,
             tokenType: data.token_type,
@@ -42,18 +48,25 @@ export const getAccessTokens = (username: string, password: string): Promise<Bad
       })
       .catch(err => {
         const _badgrTokensResponse: BadgrTokensResponse = {
-          error: true
+          error: true,
+          errorMessage: err.response ? err.response.data.error_description : err.message,
+          badgrTokens: {
+            accessToken: '',
+            tokenType: '',
+            expiresIn: 0,
+            refreshToken: '',
+            scope: ''
+          }
         };
-        if (err.response) {
-          _badgrTokensResponse.errorMessage = err.response.data.error_description;
-        } else {
-          _badgrTokensResponse.errorMessage = err.message;
-        }
         reject(_badgrTokensResponse);
       });
   });
 };
 
+/**
+ * Refresh access tokens
+ * @param refreshToken
+ */
 export const refreshAccessTokens = (refreshToken: string): Promise<BadgrTokensResponse> => {
   return new Promise((resolve, reject) => {
     _axios
@@ -68,6 +81,7 @@ export const refreshAccessTokens = (refreshToken: string): Promise<BadgrTokensRe
         const { data } = resp;
         const _badgrTokensResponse: BadgrTokensResponse = {
           error: false,
+          errorMessage: '',
           badgrTokens: {
             accessToken: data.access_token,
             tokenType: data.token_type,
@@ -80,16 +94,28 @@ export const refreshAccessTokens = (refreshToken: string): Promise<BadgrTokensRe
       })
       .catch(err => {
         const _badgrTokensResponse: BadgrTokensResponse = {
-          error: true
+          error: true,
+          errorMessage: err.message,
+          badgrTokens: {
+            accessToken: '',
+            tokenType: '',
+            expiresIn: 0,
+            refreshToken: '',
+            scope: ''
+          }
         };
-        if (err.message) {
-          _badgrTokensResponse.errorMessage = err.message;
-        }
         reject(_badgrTokensResponse);
       });
   });
 };
 
+/**
+ * Get a list of Issuers
+ * if entityId is passed, will try to get Issuer of that specific entityId
+ *
+ * @param accessToken
+ * @param entityId?
+ */
 export const getIssuers = (accessToken: string, entityId?: string): Promise<IssuersResponse> => {
   return new Promise((resolve, reject) => {
     _axios
@@ -101,6 +127,7 @@ export const getIssuers = (accessToken: string, entityId?: string): Promise<Issu
       .then(resp => {
         const _issuersResponse: IssuersResponse = {
           error: false,
+          errorMessage: '',
           issuers: resp.data.result
         };
         resolve(_issuersResponse);
@@ -108,13 +135,21 @@ export const getIssuers = (accessToken: string, entityId?: string): Promise<Issu
       .catch(err => {
         const _issuersResponse: IssuersResponse = {
           error: true,
-          errorMessage: err.response.statusText || err.message
+          errorMessage: err.response.statusText || err.message,
+          issuers: []
         };
         reject(_issuersResponse);
       });
   });
 };
 
+/**
+ * Get a list of BadgeClasses
+ * if entityId is passed, will try to get BadgeClass of that specific entityId
+ *
+ * @param accessToken
+ * @param entityId?
+ */
 export const getBadgeClasses = (accessToken: string, entityId?: string): Promise<BadgeClassesResponse> => {
   return new Promise((resolve, reject) => {
     _axios
@@ -126,6 +161,7 @@ export const getBadgeClasses = (accessToken: string, entityId?: string): Promise
       .then(resp => {
         const _badgeClassesResponse: BadgeClassesResponse = {
           error: false,
+          errorMessage: '',
           badgeClasses: resp.data.result
         };
         resolve(_badgeClassesResponse);
@@ -133,13 +169,24 @@ export const getBadgeClasses = (accessToken: string, entityId?: string): Promise
       .catch(err => {
         const _badgeClassesResponse: BadgeClassesResponse = {
           error: true,
-          errorMessage: err.response.statusText || err.message
+          errorMessage: err.response.statusText || err.message,
+          badgeClasses: []
         };
         reject(_badgeClassesResponse);
       });
   });
 };
 
+/**
+ * Award a BadgeClass to a recipient
+ *
+ * @param accessToken
+ * @param badgeClassEntityId The entityId of the BadgeClass
+ * @param recipientEmail
+ * @param evidenceUrl The URL to the evidence for earning this BadgeClass
+ * @param evidenceNarrative The narrative for earning this BadgeClass
+ * @param expires Expiration date for the assertion. ISO8601 formatted datetime stamp, e.g. 2018-11-26T13:45:00Z
+ */
 export const awardBadgeClass = (
   accessToken: string,
   badgeClassEntityId: string,
@@ -169,30 +216,62 @@ export const awardBadgeClass = (
       .then(resp => {
         const _awardBadgeClassResponse: AwardBadgeClassResponse = {
           error: false,
+          errorMessage: '',
+          validationErrors: [],
+          fieldErrors: [],
           badgeClassAssertion: resp.data.result[0]
         };
         resolve(_awardBadgeClassResponse);
       })
       .catch(err => {
         const _awardBadgeClassResponse: AwardBadgeClassResponse = {
-          error: true
+          error: true,
+          errorMessage: err.response.data.status.description || err.message,
+          validationErrors: err.response.data.validationErrors || [],
+          fieldErrors: err.response.data.fieldErrors || [],
+          badgeClassAssertion: {
+            entityType: '',
+            entityId: '',
+            openBadgeId: '',
+            createdAt: '',
+            createdBy: '',
+            badgeclass: '',
+            badgeclassOpenBadgeId: '',
+            issuer: '',
+            issuerOpenBadgeId: '',
+            image: '',
+            recipient: {
+              identity: ''
+            },
+            issuedOn: '',
+            narrative: '',
+            evidence: [],
+            revoked: false,
+            revocationReason: '',
+            expires: '',
+            extensions: '',
+            badgeclassName: ''
+          }
         };
-        if (err.response) {
-          _awardBadgeClassResponse.errorMessage = err.response.data.status.description;
-          if (err.response.data.validationErrors.length) {
-            _awardBadgeClassResponse.validationErrors = err.response.data.validationErrors;
-          }
-          if (err.response.data.fieldErrors) {
-            _awardBadgeClassResponse.fieldErrors = err.response.data.fieldErrors;
-          }
-        } else {
-          _awardBadgeClassResponse.errorMessage = err.message;
-        }
         reject(_awardBadgeClassResponse);
       });
   });
 };
 
+/**
+ * Create a BadgeClass for an Issuer
+ *
+ * @param accessToken
+ * @param issuerEntityId The entityId of the Issuer
+ * @param name
+ * @param description
+ * @param image
+ * @param criteriaUrl
+ * @param criteriaNarrative
+ * @param tags
+ * @param expiresAmount
+ * @param expiresDuration "days", "weeks", "months", "years"
+ */
 export const createBadgeClass = (
   accessToken: string,
   issuerEntityId: string,
@@ -231,31 +310,52 @@ export const createBadgeClass = (
       .then(resp => {
         const _createBadgeClassResponse: CreateBadgeClassResponse = {
           error: false,
+          errorMessage: '',
+          validationErrors: [],
+          fieldErrors: [],
           badgeClass: resp.data.result[0]
         };
         resolve(_createBadgeClassResponse);
       })
       .catch(err => {
         const _createBadgeClassResponse: CreateBadgeClassResponse = {
-          error: true
+          error: true,
+          errorMessage: err.response.data.status.description || err.message,
+          validationErrors: err.response.data.validationErrors || [],
+          fieldErrors: err.response.data.fieldErrors || [],
+          badgeClass: {
+            entityType: '',
+            entityId: '',
+            openBadgeId: '',
+            createdAt: '',
+            createdBy: '',
+            issuer: '',
+            issuerOpenBadgeId: '',
+            name: '',
+            image: '',
+            description: '',
+            criteriaUrl: '',
+            criteriaNarrative: '',
+            alignments: [],
+            tags: [],
+            expires: {
+              amount: '',
+              duration: ''
+            },
+            extensions: ''
+          }
         };
-
-        if (err.response) {
-          _createBadgeClassResponse.errorMessage = err.response.data.status.description;
-          if (err.response.data.validationErrors.length) {
-            _createBadgeClassResponse.validationErrors = err.response.data.validationErrors;
-          }
-          if (err.response.data.fieldErrors) {
-            _createBadgeClassResponse.fieldErrors = err.response.data.fieldErrors;
-          }
-        } else {
-          _createBadgeClassResponse.errorMessage = err.message;
-        }
         reject(_createBadgeClassResponse);
       });
   });
 };
 
+/**
+ * Delete a BadgeClass
+ *
+ * @param accessToken
+ * @param badgeClassEntityId
+ */
 export const deleteBadgeClass = (accessToken: string, badgeClassEntityId: string): Promise<Response> => {
   return new Promise((resolve, reject) => {
     _axios
@@ -266,7 +366,8 @@ export const deleteBadgeClass = (accessToken: string, badgeClassEntityId: string
       })
       .then(resp => {
         const _deleteBadgeClassResponse: Response = {
-          error: false
+          error: false,
+          errorMessage: ''
         };
         resolve(_deleteBadgeClassResponse);
       })
@@ -280,6 +381,13 @@ export const deleteBadgeClass = (accessToken: string, badgeClassEntityId: string
   });
 };
 
+/**
+ * Revoke an Assertion
+ *
+ * @param accessToken
+ * @param assertionEntityId
+ * @param revocationReason
+ */
 export const revokeAssertion = (
   accessToken: string,
   assertionEntityId: string,
@@ -297,7 +405,8 @@ export const revokeAssertion = (
       })
       .then(resp => {
         const _revokeAssertionResponse: Response = {
-          error: false
+          error: false,
+          errorMessage: ''
         };
         resolve(_revokeAssertionResponse);
       })
