@@ -1,6 +1,7 @@
 import {
   BadgrTokensResponse,
   IssuersResponse,
+  BadgeClassAssertionsResponse,
   BadgeClassesResponse,
   AwardBadgeClassData,
   RecipientType,
@@ -173,6 +174,42 @@ export const getBadgeClasses = (accessToken: string, entityId?: string): Promise
           badgeClasses: []
         };
         reject(_badgeClassesResponse);
+      });
+  });
+};
+
+/**
+ * Get a list of Assertions for a single BadgeClass
+ *
+ * @param accessToken
+ * @param entityId
+ */
+export const getBadgeClassAssertions = (
+  accessToken: string,
+  entityId: string
+): Promise<BadgeClassAssertionsResponse> => {
+  return new Promise((resolve, reject) => {
+    _axios
+      .get(`/v2/badgeclasses/${entityId}/assertions`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      .then(resp => {
+        const _badgeClassAssertionsResponse: BadgeClassAssertionsResponse = {
+          error: false,
+          errorMessage: '',
+          assertions: resp.data.result
+        };
+        resolve(_badgeClassAssertionsResponse);
+      })
+      .catch(err => {
+        const _badgeClassAssertionsResponse: BadgeClassAssertionsResponse = {
+          error: true,
+          errorMessage: err.response.statusText || err.message,
+          assertions: []
+        };
+        reject(_badgeClassAssertionsResponse);
       });
   });
 };
