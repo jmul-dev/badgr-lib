@@ -133,6 +133,12 @@ interface BadgeClassAssertion {
   badgeclassName: string;
 }
 
+export type BadgeClassAssertionsResponse = {
+  error: boolean;
+  errorMessage: string;
+  assertions: BadgeClassAssertion[];
+};
+
 export type AwardBadgeClassResponse = {
   error: boolean;
   errorMessage: string;
