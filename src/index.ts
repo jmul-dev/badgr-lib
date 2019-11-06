@@ -3,8 +3,10 @@ import {
   refreshAccessTokens,
   getIssuers,
   getBadgeClasses,
+  getBadgeClassAssertions,
   awardBadgeClass,
   createBadgeClass,
+  updateBadgeClass,
   deleteBadgeClass,
   revokeAssertion
 } from './BadgrLib';
@@ -13,9 +15,11 @@ export default {
   refreshAccessTokens,
   getIssuers,
   getBadgeClasses,
+  getBadgeClassAssertions,
   awardBadgeClass,
   createBadgeClass,
+  updateBadgeClass,
   deleteBadgeClass,
   revokeAssertion
 };
-export * from "./BadgrLibTypes";
+export * from './BadgrLibTypes';

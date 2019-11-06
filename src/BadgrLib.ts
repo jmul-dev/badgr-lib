@@ -8,6 +8,8 @@ import {
   AwardBadgeClassResponse,
   CreateBadgeClassData,
   CreateBadgeClassResponse,
+  UpdateBadgeClassData,
+  UpdateBadgeClassResponse,
   Response
 } from './BadgrLibTypes';
 import axios from 'axios';
@@ -383,6 +385,98 @@ export const createBadgeClass = (
           }
         };
         reject(_createBadgeClassResponse);
+      });
+  });
+};
+
+/**
+ * Update a BadgeClass
+ *
+ * @param accessToken
+ * @param badgeClassEntityId
+ * @param name
+ * @param description
+ * @param image
+ * @param criteriaUrl
+ * @param criteriaNarrative
+ * @param tags
+ * @param expiresAmount
+ * @param expiresDuration "days", "weeks", "months", "years"
+ */
+export const updateBadgeClass = (
+  accessToken: string,
+  badgeClassEntityId: string,
+  name: string,
+  description: string,
+  image: string,
+  criteriaUrl: string,
+  criteriaNarrative: string,
+  tags?: string[],
+  expiresAmount?: string,
+  expiresDuration?: string
+): Promise<UpdateBadgeClassResponse> => {
+  return new Promise((resolve, reject) => {
+    const _data: UpdateBadgeClassData = {
+      name,
+      description,
+      image,
+      criteriaUrl,
+      criteriaNarrative
+    };
+    if (tags.length) {
+      _data.tags = tags;
+    }
+    if (expiresAmount && expiresDuration) {
+      _data.expires = {
+        amount: expiresAmount,
+        duration: expiresDuration
+      };
+    }
+    _axios
+      .put(`/v2/badgeclasses/${badgeClassEntityId}`, _data, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`
+        }
+      })
+      .then(resp => {
+        const _updateBadgeClassResponse: UpdateBadgeClassResponse = {
+          error: false,
+          errorMessage: '',
+          validationErrors: [],
+          fieldErrors: [],
+          badgeClass: resp.data.result[0]
+        };
+        resolve(_updateBadgeClassResponse);
+      })
+      .catch(err => {
+        const _updateBadgeClassResponse: UpdateBadgeClassResponse = {
+          error: true,
+          errorMessage: err.response.data.status.description || err.message,
+          validationErrors: err.response.data.validationErrors || [],
+          fieldErrors: err.response.data.fieldErrors || [],
+          badgeClass: {
+            entityType: '',
+            entityId: '',
+            openBadgeId: '',
+            createdAt: '',
+            createdBy: '',
+            issuer: '',
+            issuerOpenBadgeId: '',
+            name: '',
+            image: '',
+            description: '',
+            criteriaUrl: '',
+            criteriaNarrative: '',
+            alignments: [],
+            tags: [],
+            expires: {
+              amount: '',
+              duration: ''
+            },
+            extensions: ''
+          }
+        };
+        reject(_updateBadgeClassResponse);
       });
   });
 };
