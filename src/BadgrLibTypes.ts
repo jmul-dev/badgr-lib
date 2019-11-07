@@ -165,6 +165,24 @@ export type CreateBadgeClassResponse = {
   badgeClass: BadgeClass;
 };
 
+export type UpdateBadgeClassData = {
+  name: string;
+  description: string;
+  image: string;
+  criteriaUrl: string;
+  criteriaNarrative: string;
+  tags?: string[];
+  expires?: BadgeClassExpiration;
+};
+
+export type UpdateBadgeClassResponse = {
+  error: boolean;
+  errorMessage: string;
+  validationErrors: any;
+  fieldErrors: any;
+  badgeClass: BadgeClass;
+};
+
 export type Response = {
   error: boolean;
   errorMessage: string;
